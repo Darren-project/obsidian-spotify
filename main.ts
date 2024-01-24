@@ -24,7 +24,34 @@ export default class MyPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
         if(this.settings.spotify_access_token){
+		   
+			let json_spotify = this.settings.spotify_access_token
+			console.log(json_spotify)
+			let refresh_token = json_spotify.refresh_token
+			let body = new URLSearchParams(
+				{
+					grant_type: 'refresh_token',
+      				refresh_token: refresh_token,
+      				client_id: this.settings.spotify_client_id
+				  }
+			).toString()
+			let access_token = await requestUrl({
+				"url": 'https://accounts.spotify.com/api/token',
+				"method": "POST",
+				"headers": {
+					'content-type': 'application/x-www-form-urlencoded',
+					'Authorization': 'Basic ' + (btoa(this.settings.spotify_client_id + ':' + this.settings.spotify_client_secret))
+				  },
+				"body": body,
+				"throw": false
+			})
+			let data = await access_token.json
+			console.log(data)
 			window.spotifysdk = SpotifyApi.withAccessToken(this.settings.spotify_client_id, this.settings.spotify_access_token);
+			
+			
+
+
 		} else {
 			window.spotifysdk = SpotifyApi.withUserAuthorization(this.settings.spotify_client_id, "obsidian://spotify/auth", ['user-follow-modify', 'user-follow-read', 'user-read-playback-position', 'user-top-read', 'user-read-recently-played', 'user-library-modify', 'user-library-read', 'user-read-email', 'user-read-private', 'ugc-image-upload', 'app-remote-control', 'streaming', 'playlist-read-private', 'playlist-read-collaborative', 'playlist-modify-private', 'playlist-modify-public', 'user-read-playback-state', 'user-modify-playback-state', 'user-read-currently-playing', 'user-modify-playback-state', 'user-read-recently-played']);
 		}
@@ -32,15 +59,14 @@ export default class MyPlugin extends Plugin {
 		
 		this.registerObsidianProtocolHandler("spotify/auth", async (e) => {
 			let code = e.code
-			let body = querystring.stringify(
+			let body = new URLSearchParams(
 				{
 					client_id: this.settings.spotify_client_id,
 					grant_type: 'authorization_code',
 					code,
 					redirect_uri: "obsidian://spotify/auth",
-					code_verifier: window.codeVerifier,
 				  }
-			)
+			).toString()
 			let access_token = await requestUrl({
 				"url": 'https://accounts.spotify.com/api/token',
 				"method": "POST",
@@ -53,6 +79,7 @@ export default class MyPlugin extends Plugin {
 			})
 			let data = await access_token.json
 			this.settings.spotify_access_token = data
+			console.log(data)
 			await this.saveSettings();
 			window.spotifysdk = SpotifyApi.withAccessToken(this.settings.spotify_client_id, this.settings.spotify_access_token);
 		})
@@ -62,11 +89,6 @@ export default class MyPlugin extends Plugin {
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new SampleSettingTab(this.app, this));
 
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
-		});
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		
@@ -139,39 +161,13 @@ class SampleSettingTab extends PluginSettingTab {
 				.setButtonText("Spotify auth")
 				.setCta()
 				.onClick(async () => {
-					const generateRandomString = (length) => {
-						const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-						const values = crypto.getRandomValues(new Uint8Array(length));
-						return values.reduce((acc, x) => acc + possible[x % possible.length], "");
-					  }
-					  
-					window.codeVerifier  = generateRandomString(64);
-
-					const sha256 = async (plain) => {
-						const encoder = new TextEncoder()
-						const data = encoder.encode(plain)
-						return window.crypto.subtle.digest('SHA-256', data)
-					  }
-
-					  const base64encode = (input) => {
-						return btoa(String.fromCharCode(...new Uint8Array(input)))
-						  .replace(/=/g, '')
-						  .replace(/\+/g, '-')
-						  .replace(/\//g, '_');
-					  }
-
-					
-					  const hashed = await sha256(codeVerifier)
-					  window.codeChallenge = base64encode(hashed);
-
 				    let scope = "user-follow-modify user-follow-read user-read-playback-position user-top-read user-read-recently-played user-library-modify user-library-read user-read-email user-read-private ugc-image-upload app-remote-control streaming playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-read-playback-state user-modify-playback-state user-read-currently-playing user-modify-playback-state user-read-recently-played "
 					let params =  {
 						response_type: 'code',
 						client_id: this.plugin.settings.spotify_client_id,
 						scope,
-						code_challenge_method: 'S256',
-						code_challenge: window.codeChallenge,
 						redirect_uri: "obsidian://spotify/auth",
+						state: 'lanjiao'
 					  }
 
 					  let endpoint = new URL('https://accounts.spotify.com/authorize');
