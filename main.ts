@@ -47,7 +47,7 @@ export default class MyPlugin extends Plugin {
 			})
 			let data = await access_token.json
 			console.log(data)
-			window.spotifysdk = SpotifyApi.withAccessToken(this.settings.spotify_client_id, this.settings.spotify_access_token);
+			window.spotifysdk = SpotifyApi.withAccessToken(this.settings.spotify_client_id, data);
 			
 			
 
