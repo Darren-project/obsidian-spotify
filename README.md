@@ -5,20 +5,20 @@ Installation
 
 To install the Spotify Plugin for Obsidian, follow these steps:
 
-    Open Obsidian and navigate to the "Community Plugins" tab in the settings.
-    Search for "Spotify" in the plugin search bar.
-    Click on the "Install" button next to the Spotify Plugin.
-    Once installed, enable the plugin.
+1. Open Obsidian and navigate to the "Community Plugins" tab in the settings.
+2. Search for "Spotify" in the plugin search bar.
+3. Click on the "Install" button next to the Spotify Plugin.
+4. Once installed, enable the plugin.
 
 Configuration
 
 Before you can use the Spotify Plugin, you need to configure it with your Spotify API credentials. Here's how:
 
-    Go to the Spotify Developer Dashboard and create a new application.
-    Copy the "Client ID" and "Client Secret" values from your Spotify application.
-    Open the Obsidian settings and navigate to the "Spotify" tab.
-    Paste the "Client ID" and "Client Secret" values into the respective fields.
-    Click the "Save" button to save your settings.
+1. Go to the Spotify Developer Dashboard and create a new application.
+2. Copy the "Client ID" and "Client Secret" values from your Spotify application.
+3. Open the Obsidian settings and navigate to the "Spotify" tab.
+4. Paste the "Client ID" and "Client Secret" values into the respective fields.
+5. Click the "Save" button to save your settings.
 
 Authentication
 
@@ -26,10 +26,10 @@ Authentication
 
 To authenticate with Spotify, follow these steps:
 
-    Open the Obsidian settings and navigate to the "Spotify" tab.
-    Enter your client and secret id
-    Click the "Spotify login" button.
-    Follow the on-screen instructions to complete the authentication process.
+1. Open the Obsidian settings and navigate to the "Spotify" tab.
+2. Enter your client and secret id
+3. Click the "Spotify login" button.
+4. Follow the on-screen instructions to complete the authentication process.
 
 Usage
 
