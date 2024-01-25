@@ -35,11 +35,11 @@ Usage
 
 Once authenticated, you can use the Spotify Plugin to interact with the Spotify API. Here are some examples of what you can do:
 
-    Search for songs, albums, and artists.
-    Retrieve information about playlists, tracks, and albums.
-    Control playback on Spotify devices.
-    Get recommendations based on your listening history.
-    Access user-specific data, such as top tracks and recently played tracks.
+1. Search for songs, albums, and artists.
+2. Retrieve information about playlists, tracks, and albums.
+3. Control playback on Spotify devices.
+4. Get recommendations based on your listening history.
+5. Access user-specific data, such as top tracks and recently played tracks.
 
 To use the Spotify Plugin in your Obsidian notes, you can use the provided JavaScript code examples. Here's an example of how to search for tracks:
 
