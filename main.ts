@@ -24,15 +24,15 @@ export default class MyPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
         if(this.settings.spotify_access_token){
-		   
-			let json_spotify = this.settings.spotify_access_token
+		   async function refreshspot(setting) {
+			let json_spotify = setting.spotify_access_token
 			console.log(json_spotify)
 			let refresh_token = json_spotify.refresh_token
 			let body = new URLSearchParams(
 				{
 					grant_type: 'refresh_token',
       				refresh_token: refresh_token,
-      				client_id: this.settings.spotify_client_id
+      				client_id: setting.spotify_client_id
 				  }
 			).toString()
 			let access_token = await requestUrl({
@@ -40,14 +40,19 @@ export default class MyPlugin extends Plugin {
 				"method": "POST",
 				"headers": {
 					'content-type': 'application/x-www-form-urlencoded',
-					'Authorization': 'Basic ' + (btoa(this.settings.spotify_client_id + ':' + this.settings.spotify_client_secret))
+					'Authorization': 'Basic ' + (btoa(setting.spotify_client_id + ':' + setting.spotify_client_secret))
 				  },
 				"body": body,
 				"throw": false
 			})
 			let data = await access_token.json
 			console.log(data)
-			window.spotifysdk = SpotifyApi.withAccessToken(this.settings.spotify_client_id, data);
+			window.spotifysdk = SpotifyApi.withAccessToken(setting.spotify_client_id, data);
+		}
+		await refreshspot(this.settings)
+			setInterval( async () => {
+				await refreshspot(this.settings)
+		}, "3600000")
 			
 			
 
