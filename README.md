@@ -20,7 +20,7 @@ Before you can use the Spotify Plugin, you need to configure it with your Spotif
 2. Copy the "Client ID" and "Client Secret" values from your Spotify application.
 3. Open the Obsidian settings and navigate to the "Spotify" tab.
 4. Paste the "Client ID" and "Client Secret" values into the respective fields.
-5. Click the "Save" button to save your settings.
+5. Next follow the Authorization steps
 
 Authentication
 
