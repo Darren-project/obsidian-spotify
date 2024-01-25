@@ -6,8 +6,8 @@ Installation
 To install the Spotify Plugin for Obsidian, follow these steps:
 
 1. Open Obsidian and navigate to the "Community Plugins" tab in the settings.
-2. Search for "Spotify" in the plugin search bar.
-3. Click on the "Install" button next to the Spotify Plugin.
+2. Search for "Spotify api" in the plugin search bar.
+3. Click on the "Install" button next to the Spotify api Plugin.
 4. Once installed, enable the plugin.
 
 Configuration
