@@ -93,7 +93,7 @@ export default class ObsidianSpotify extends Plugin {
 		
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+		this.addSettingTab(new ObsidianSpotifySettingsTab(this.app, this));
 
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
@@ -113,24 +113,10 @@ export default class ObsidianSpotify extends Plugin {
 	}
 }
 
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
 
-	onOpen() {
-		const {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
 
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+class ObsidianSpotifySettingsTab extends PluginSettingTab {
+	plugin: ObsidianSpotify;
 
 	constructor(app: App, plugin: ObsidianSpotify) {
 		super(app, plugin);
