@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, requestUrl } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginManifest, PluginSettingTab, Setting, requestUrl } from 'obsidian';
 import { SpotifyApi } from '@spotify/web-api-ts-sdk';
 const querystring = require('querystring');
 
@@ -20,11 +20,12 @@ const DEFAULT_SETTINGS: ObsidianSpotifySettings = {
 
 export default class ObsidianSpotify extends Plugin {
 	settings: ObsidianSpotifySettings;
+	manifest: PluginManifest;
 
 	async onload() {
 		await this.loadSettings();
         if(this.settings.spotify_access_token){
-		   async function refreshspot(setting) {
+		   async function refreshspot(setting, manifest) {
 			let json_spotify = setting.spotify_access_token
 			let refresh_token = json_spotify.refresh_token
 			let body = new URLSearchParams(
@@ -45,12 +46,13 @@ export default class ObsidianSpotify extends Plugin {
 				"throw": false
 			})
 			let data = await access_token.json
-			console.log(pl)
+			
+			console.log("[" + manifest.name + "] Spotify Token Refreshed")
 			window.spotifysdk = SpotifyApi.withAccessToken(setting.spotify_client_id, data);
 		}
-		await refreshspot(this.settings)
+		await refreshspot(this.settings, this.manifest)
 			setInterval( async () => {
-				await refreshspot(this.settings)
+				await refreshspot(this.settings, this.manifest)
 		}, "3600000")
 			
 			
