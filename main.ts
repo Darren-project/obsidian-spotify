@@ -6,20 +6,20 @@ const querystring = require('querystring');
 
 // Remember to rename these classes and interfaces!
 
-interface MyPluginSettings {
+interface ObsidianSpotifySettings {
 	spotify_client_id: string;
 	spotify_client_secret: string;
 	spotify_access_token: object;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
+const DEFAULT_SETTINGS: ObsidianSpotifySettings = {
 	spotify_client_id: '',
 	spotify_client_secret: '',
 	spotify_access_token: {},
 }
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+export default class ObsidianSpotify extends Plugin {
+	settings: ObsidianSpotifySettings;
 
 	async onload() {
 		await this.loadSettings();
@@ -130,7 +130,7 @@ class SampleModal extends Modal {
 class SampleSettingTab extends PluginSettingTab {
 	plugin: MyPlugin;
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: ObsidianSpotify) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
