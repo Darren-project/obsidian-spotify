@@ -1,5 +1,7 @@
 Spotify Plugin for Obsidian
 
+<a href="https://www.buymeacoffee.com/mickeydarrenlau"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=mickeydarrenlau&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
+
 This project uses the official Spotify TS  Api
 
 The Spotify Plugin for Obsidian allows you to integrate Spotify functionality into your Obsidian notes. With this plugin, you can access your Spotify account, search for songs, albums, and artists, and retrieve information about playlists, tracks, and more. Start using the Spotify Plugin today and enhance your note-taking experience with music integration!
