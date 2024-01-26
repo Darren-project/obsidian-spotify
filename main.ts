@@ -26,7 +26,6 @@ export default class MyPlugin extends Plugin {
         if(this.settings.spotify_access_token){
 		   async function refreshspot(setting) {
 			let json_spotify = setting.spotify_access_token
-			console.log(json_spotify)
 			let refresh_token = json_spotify.refresh_token
 			let body = new URLSearchParams(
 				{
@@ -46,7 +45,7 @@ export default class MyPlugin extends Plugin {
 				"throw": false
 			})
 			let data = await access_token.json
-			console.log(data)
+			console.log(pl)
 			window.spotifysdk = SpotifyApi.withAccessToken(setting.spotify_client_id, data);
 		}
 		await refreshspot(this.settings)
