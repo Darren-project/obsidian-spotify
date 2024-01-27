@@ -91,8 +91,48 @@ export default class ObsidianSpotify extends Plugin {
 		} else {
 			window.spotifysdk = SpotifyApi.withUserAuthorization(this.settings.spotify_client_id, "obsidian://spotify/auth", ['user-follow-modify', 'user-follow-read', 'user-read-playback-position', 'user-top-read', 'user-read-recently-played', 'user-library-modify', 'user-library-read', 'user-read-email', 'user-read-private', 'ugc-image-upload', 'app-remote-control', 'streaming', 'playlist-read-private', 'playlist-read-collaborative', 'playlist-modify-private', 'playlist-modify-public', 'user-read-playback-state', 'user-modify-playback-state', 'user-read-currently-playing', 'user-modify-playback-state', 'user-read-recently-played']);
 		}
+		function spotify_auth_login(spotify_client_id: string, manifest: PluginManifest) {
+					let state = Math.random().toString(36).substring(2,10);
+				    let scope = "user-follow-modify user-follow-read user-read-playback-position user-top-read user-read-recently-played user-library-modify user-library-read user-read-email user-read-private ugc-image-upload app-remote-control streaming playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-read-playback-state user-modify-playback-state user-read-currently-playing user-modify-playback-state user-read-recently-played"
+					let params =  {
+						response_type: 'code',
+						client_id: spotify_client_id,
+						scope,
+						redirect_uri: "obsidian://spotify/auth",
+						state: state
+					  }
+					
+					let endpoint = new URL('https://accounts.spotify.com/authorize');
+					endpoint.search = new URLSearchParams(params).toString();
+					window.location.assign(endpoint.toString())
+					sharedstuff.set("spotifystate", state)
+					console.log("[" + manifest.name + "] Opening login page")
+		}
 		
-		
+		function spotify_auth_logout(manifest: PluginManifest){
+			window.spotifysdk.logOut()
+			console.log("[" + manifest.name + "] Logged out")
+		}
+
+		sharedstuff.set("spotify_auth_login_function",spotify_auth_login)
+		sharedstuff.set("spotify_auth_logout_function",spotify_auth_logout)
+
+		this.addCommand({
+			id: "spotify-auth-login",
+			name: "Login",
+			callback: () => {
+				sharedstuff.get("spotify_auth_login_function")(this.settings.spotify_client_id, this.manifest)
+			}
+		})
+		this.addCommand({
+			id: "spotify-auth-logout",
+			name: "Logout",
+			callback: () => {
+				sharedstuff.get("spotify_auth_logout_function")(this.manifest)
+			}
+		})
+
+
 		this.registerObsidianProtocolHandler("spotify/auth", async (e) => {
 			console.log("[" + this.manifest.name + "] Spotify Auth Code Received From Callback")
 			let correctstate = sharedstuff.get("spotifystate")
@@ -195,22 +235,8 @@ class ObsidianSpotifySettingsTab extends PluginSettingTab {
 				.setButtonText("Spotify auth")
 				.setCta()
 				.onClick(async () => {
-					let state = Math.random().toString(36).substring(2,10);
-				    let scope = "user-follow-modify user-follow-read user-read-playback-position user-top-read user-read-recently-played user-library-modify user-library-read user-read-email user-read-private ugc-image-upload app-remote-control streaming playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-read-playback-state user-modify-playback-state user-read-currently-playing user-modify-playback-state user-read-recently-played"
-					let params =  {
-						response_type: 'code',
-						client_id: this.plugin.settings.spotify_client_id,
-						scope,
-						redirect_uri: "obsidian://spotify/auth",
-						state: state
-					  }
-
-					let endpoint = new URL('https://accounts.spotify.com/authorize');
-					endpoint.search = new URLSearchParams(params).toString();
-					window.location.assign(endpoint.toString())
-					sharedstuff.set("spotifystate", state)
-					console.log("[" + manifest.name + "] Opening login page")
 					
+					sharedstuff.get("spotify_auth_login_function")(this.plugin.settings.spotify_client_id, manifest)
 
 				}))
 				new Setting(containerEl)
@@ -218,9 +244,8 @@ class ObsidianSpotifySettingsTab extends PluginSettingTab {
 				.setButtonText("Spotify logout")
 				.setCta()	
 				.onClick(async () => {
-					window.spotifysdk.logOut()
-					console.log("[" + manifest.name + "] Logged out")
 					
+					sharedstuff.get("spotify_auth_logout_function")(manifest)
 
 				}))
 	}
