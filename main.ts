@@ -10,19 +10,38 @@ declare global {
 
 }
 
-class SharedStuff{
-	constructor(private stuff: {[key: string]: any;}) {
-	   this.stuff = {}
-	   
-	}
+class SharedStuff {
+    constructor(private stuff: {[key: string]: any;}) {
+        this.stuff = {}
+    }
 
-	set(name: string, value: any) {
-		this.stuff[name] = value
-	}
+    set(name: string, value: any) {
+        this.stuff[name] = value;
+    }
 
-	get(name: string) {
-		return this.stuff[name]
-	}
+    get(name: string) {
+        return this.stuff[name];
+    }
+
+    delete(name: string) {
+        delete this.stuff[name];
+    }
+
+    has(name: string) {
+        return this.stuff.hasOwnProperty(name);
+    }
+
+    keys() {
+        return Object.keys(this.stuff);
+    }
+
+    values() {
+        return Object.values(this.stuff);
+    }
+
+    entries() {
+        return Object.entries(this.stuff);
+    }
 }
 
 const sharedstuff = new SharedStuff({})
