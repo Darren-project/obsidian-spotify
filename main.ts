@@ -104,7 +104,7 @@ export default class ObsidianSpotify extends Plugin {
 					
 					let endpoint = new URL('https://accounts.spotify.com/authorize');
 					endpoint.search = new URLSearchParams(params).toString();
-					window.location.assign(endpoint.toString())
+					window.location.assign(endpoint)
 					sharedstuff.set("spotifystate", state)
 					console.log("[" + manifest.name + "] Opening login page")
 		}
