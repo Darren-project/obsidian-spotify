@@ -5,7 +5,7 @@
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
-		"build": "node esbuild.config.mjs production",
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
 		"version": "node version-bump.mjs && git add manifest.json versions.json"
 	},
 	"keywords": [],
@@ -18,16 +18,10 @@
 		"builtin-modules": "3.3.0",
 		"esbuild": "0.17.3",
 		"obsidian": "latest",
-		"spotify-web-api-node": "^5.0.2",
-		"tslib": "2.4.0",
-		"typescript": "4.7.4"
+		"tslib": "^2.4.0"
 	},
 	"dependencies": {
 		"@spotify/web-api-ts-sdk": "^1.2.0",
-		"body-parser": "^1.20.2",
-		"crypto-random-string": "^5.0.0",
-		"express": "^4.18.2",
-		"pkce-codes": "^0.0.3",
-		"querystring": "^0.2.1"
+		"typescript": "^5.3.3"
 	}
 }

@@ -1,21 +1,48 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginManifest, PluginSettingTab, Setting, requestUrl } from 'obsidian';
-import { SpotifyApi } from '@spotify/web-api-ts-sdk';
-const querystring = require('querystring');
+import { SpotifyApi, AccessToken } from '@spotify/web-api-ts-sdk';
 
 
+declare global {
+    interface Window {
+        spotifysdk:SpotifyApi;
+    }
 
-// Remember to rename these classes and interfaces!
+
+}
+
+class SharedStuff{
+	constructor(private stuff: {[key: string]: any;}) {
+	   this.stuff = {}
+	   
+	}
+
+	set(name: string, value: any) {
+		this.stuff[name] = value
+	}
+
+	get(name: string) {
+		return this.stuff[name]
+	}
+}
+
+const sharedstuff = new SharedStuff({})
 
 interface ObsidianSpotifySettings {
 	spotify_client_id: string;
 	spotify_client_secret: string;
-	spotify_access_token: object;
+	spotify_access_token: AccessToken;
 }
 
 const DEFAULT_SETTINGS: ObsidianSpotifySettings = {
 	spotify_client_id: '',
 	spotify_client_secret: '',
-	spotify_access_token: {},
+	spotify_access_token: {
+		access_token: "",
+		token_type: "",
+		expires_in: 0,
+		refresh_token: ""
+
+	},
 }
 
 export default class ObsidianSpotify extends Plugin {
@@ -24,8 +51,9 @@ export default class ObsidianSpotify extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
+		sharedstuff.set("manifest", this.manifest)
         if(this.settings.spotify_access_token){
-		   async function refreshspot(setting, manifest) {
+		   async function refreshspot(setting: ObsidianSpotifySettings, manifest: PluginManifest) {
 			let json_spotify = setting.spotify_access_token
 			let refresh_token = json_spotify.refresh_token
 			let body = new URLSearchParams(
@@ -51,9 +79,11 @@ export default class ObsidianSpotify extends Plugin {
 			window.spotifysdk = SpotifyApi.withAccessToken(setting.spotify_client_id, data);
 		}
 		await refreshspot(this.settings, this.manifest)
-			setInterval( async () => {
+		let spotifyrefreshtimer = setInterval( async () => {
 				await refreshspot(this.settings, this.manifest)
-		}, "3600000")
+		}, 3600000)
+		sharedstuff.set("spotifyrefreshtimer", spotifyrefreshtimer)
+		
 			
 			
 
@@ -64,6 +94,13 @@ export default class ObsidianSpotify extends Plugin {
 		
 		
 		this.registerObsidianProtocolHandler("spotify/auth", async (e) => {
+			console.log("[" + this.manifest.name + "] Spotify Auth Code Received From Callback")
+			let correctstate = sharedstuff.get("spotifystate")
+			let state = e.state
+			if(!(state == correctstate)){
+				console.log("[" + this.manifest.name + "] State mismatch")
+				return
+			}
 			let code = e.code
 			let body = new URLSearchParams(
 				{
@@ -85,23 +122,27 @@ export default class ObsidianSpotify extends Plugin {
 			})
 			let data = await access_token.json
 			this.settings.spotify_access_token = data
-			console.log(data)
 			await this.saveSettings();
 			window.spotifysdk = SpotifyApi.withAccessToken(this.settings.spotify_client_id, this.settings.spotify_access_token);
+			console.log("[" + this.manifest.name + "] Authed successfuly")
 		})
 
 		
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new ObsidianSpotifySettingsTab(this.app, this));
-
-
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		
+		this.addSettingTab(new ObsidianSpotifySettingsTab(this.app, this));	
 	}
 
 	onunload() {
-		window.spotifysdk = null
+		function destroyObject(obj: any){
+
+			obj = undefined;
+		  
+		}
+		destroyObject(window.spotifysdk)
+		clearInterval(sharedstuff.get("spotifyrefreshtimer"))
+		console.log("[" + this.manifest.name + "] Both the spotify sdk and auto token refresher have been cleaned up")
+
 	}
 
 	async loadSettings() {
@@ -120,11 +161,12 @@ class ObsidianSpotifySettingsTab extends PluginSettingTab {
 
 	constructor(app: App, plugin: ObsidianSpotify) {
 		super(app, plugin);
-		this.plugin = plugin;
+		this.plugin = plugin;	
 	}
 
 	display(): void {
 		const {containerEl} = this;
+		let manifest = sharedstuff.get("manifest")
 
 		containerEl.empty();
 		new Setting(containerEl)
@@ -153,27 +195,31 @@ class ObsidianSpotifySettingsTab extends PluginSettingTab {
 				.setButtonText("Spotify auth")
 				.setCta()
 				.onClick(async () => {
-				    let scope = "user-follow-modify user-follow-read user-read-playback-position user-top-read user-read-recently-played user-library-modify user-library-read user-read-email user-read-private ugc-image-upload app-remote-control streaming playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-read-playback-state user-modify-playback-state user-read-currently-playing user-modify-playback-state user-read-recently-played "
+					let state = Math.random().toString(36).substring(2,10);
+				    let scope = "user-follow-modify user-follow-read user-read-playback-position user-top-read user-read-recently-played user-library-modify user-library-read user-read-email user-read-private ugc-image-upload app-remote-control streaming playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-read-playback-state user-modify-playback-state user-read-currently-playing user-modify-playback-state user-read-recently-played"
 					let params =  {
 						response_type: 'code',
 						client_id: this.plugin.settings.spotify_client_id,
 						scope,
 						redirect_uri: "obsidian://spotify/auth",
-						state: 'lanjiao'
+						state: state
 					  }
 
-					  let endpoint = new URL('https://accounts.spotify.com/authorize');
-					  endpoint.search = new URLSearchParams(params);
+					let endpoint = new URL('https://accounts.spotify.com/authorize');
+					endpoint.search = new URLSearchParams(params).toString();
 					window.location.assign(endpoint.toString())
+					sharedstuff.set("spotifystate", state)
+					console.log("[" + manifest.name + "] Opening login page")
 					
 
 				}))
 				new Setting(containerEl)
 				.addButton((btn) => btn
 				.setButtonText("Spotify logout")
-				.setCta()
+				.setCta()	
 				.onClick(async () => {
 					window.spotifysdk.logOut()
+					console.log("[" + manifest.name + "] Logged out")
 					
 
 				}))
