@@ -97,6 +97,23 @@ export default class ObsidianSpotify extends Plugin {
 			console.log("[" + manifest.name + "] Spotify Token Refreshed")
 			window.spotifysdk = SpotifyApi.withAccessToken(setting.spotify_client_id, data);
 		}
+		var TIMEOUT = 20000;
+		var lastTime = (new Date()).getTime();
+
+		setInterval(async () =>{
+		var currentTime = (new Date()).getTime();
+		if (currentTime > (lastTime + TIMEOUT + 2000)) {
+			console.log("[" + this.manifest.name + "] Refreshing Spotify Token after waking up from sleep and restting timer")
+			await refreshspot(this.settings, this.manifest)
+			clearInterval(sharedstuff.get("spotifyrefreshtimer"))
+			let spotifyrefreshtimer = setInterval( async () => {
+				await refreshspot(this.settings, this.manifest)
+			}, 3600000)
+			sharedstuff.set("spotifyrefreshtimer", spotifyrefreshtimer)
+
+		}
+		lastTime = currentTime;
+		}, TIMEOUT);
 		await refreshspot(this.settings, this.manifest)
 		let spotifyrefreshtimer = setInterval( async () => {
 				await refreshspot(this.settings, this.manifest)
