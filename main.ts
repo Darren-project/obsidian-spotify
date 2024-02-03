@@ -100,10 +100,13 @@ export default class ObsidianSpotify extends Plugin {
 		var TIMEOUT = 20000;
 		var lastTime = (new Date()).getTime();
 
-		setInterval(async () =>{
-		var currentTime = (new Date()).getTime();
-		if (currentTime > (lastTime + TIMEOUT + 2000)) {
-			console.log("[" + this.manifest.name + "] Refreshing Spotify Token after waking up from sleep and restting timer")
+		window.addEventListener("online", async () => {
+			// Handle online event here
+			console.log("[" + this.manifest.name + "] Now offline, refreshing Spotify Token after online and restting timer")
+		  });
+
+		window.addEventListener("online", async () => {
+			console.log("[" + this.manifest.name + "] Refreshing Spotify Token after online and restting timer")
 			await refreshspot(this.settings, this.manifest)
 			clearInterval(sharedstuff.get("spotifyrefreshtimer"))
 			let spotifyrefreshtimer = setInterval( async () => {
@@ -111,9 +114,8 @@ export default class ObsidianSpotify extends Plugin {
 			}, 3600000)
 			sharedstuff.set("spotifyrefreshtimer", spotifyrefreshtimer)
 
-		}
-		lastTime = currentTime;
-		}, TIMEOUT);
+		})
+
 		await refreshspot(this.settings, this.manifest)
 		let spotifyrefreshtimer = setInterval( async () => {
 				await refreshspot(this.settings, this.manifest)
