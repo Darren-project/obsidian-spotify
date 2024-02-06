@@ -97,15 +97,15 @@ export default class ObsidianSpotify extends Plugin {
 			console.log("[" + manifest.name + "] Spotify Token Refreshed")
 			window.spotifysdk = SpotifyApi.withAccessToken(setting.spotify_client_id, data);
 		}
-		var TIMEOUT = 9000;
-		var lastTime = (new Date()).getTime();
+		var TIMEOUT = 3000;
 
-		window.addEventListener("offline", async () => {
-			// Handle online event here
+		sharedstuff.set("offlinerefresh", async () => {
 			console.log("[" + this.manifest.name + "] Now offline, refreshing Spotify Token after online and restting timer")
-		  });
+		})
 
-		window.addEventListener("online", async () => {
+		window.addEventListener("offline", sharedstuff.get("offlinerefresh"));
+		
+		sharedstuff.set("onlinerefresh", async () => {
 			console.log("[" + this.manifest.name + "] Refreshing Spotify Token after online and restting timer")
 			await refreshspot(this.settings, this.manifest)
 			clearInterval(sharedstuff.get("spotifyrefreshtimer"))
@@ -115,8 +115,10 @@ export default class ObsidianSpotify extends Plugin {
 			}, 3600000)
 			sharedstuff.set("spotifyrefreshtimer", spotifyrefreshtimer)
 		}, TIMEOUT)
+		}
+		)
 
-		})
+		window.addEventListener("online", sharedstuff.get("onlinerefresh"))
 
 		await refreshspot(this.settings, this.manifest)
 		let spotifyrefreshtimer = setInterval( async () => {
@@ -221,8 +223,8 @@ export default class ObsidianSpotify extends Plugin {
 		}
 		destroyObject(window.spotifysdk)
 		clearInterval(sharedstuff.get("spotifyrefreshtimer"))
-		window.removeEventListener("offline", () => {})
-		window.removeEventListener("online", () => {})
+		window.removeEventListener("offline", sharedstuff.get("offlinerefresh"))
+		window.removeEventListener("online", sharedstuff.get("onlinerefresh"))
 		console.log("[" + this.manifest.name + "] Both the spotify sdk and auto token refresher have been cleaned up")
 
 	}
