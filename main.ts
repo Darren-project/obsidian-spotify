@@ -97,7 +97,7 @@ export default class ObsidianSpotify extends Plugin {
 			console.log("[" + manifest.name + "] Spotify Token Refreshed")
 			window.spotifysdk = SpotifyApi.withAccessToken(setting.spotify_client_id, data);
 		}
-		var TIMEOUT = 2000;
+		var TIMEOUT = 9000;
 		var lastTime = (new Date()).getTime();
 
 		window.addEventListener("offline", async () => {
@@ -221,6 +221,8 @@ export default class ObsidianSpotify extends Plugin {
 		}
 		destroyObject(window.spotifysdk)
 		clearInterval(sharedstuff.get("spotifyrefreshtimer"))
+		window.removeEventListener("offline", () => {})
+		window.removeEventListener("online", () => {})
 		console.log("[" + this.manifest.name + "] Both the spotify sdk and auto token refresher have been cleaned up")
 
 	}
