@@ -97,10 +97,10 @@ export default class ObsidianSpotify extends Plugin {
 			console.log("[" + manifest.name + "] Spotify Token Refreshed")
 			window.spotifysdk = SpotifyApi.withAccessToken(setting.spotify_client_id, data);
 		}
-		var TIMEOUT = 20000;
+		var TIMEOUT = 2000;
 		var lastTime = (new Date()).getTime();
 
-		window.addEventListener("online", async () => {
+		window.addEventListener("offline", async () => {
 			// Handle online event here
 			console.log("[" + this.manifest.name + "] Now offline, refreshing Spotify Token after online and restting timer")
 		  });
@@ -109,10 +109,12 @@ export default class ObsidianSpotify extends Plugin {
 			console.log("[" + this.manifest.name + "] Refreshing Spotify Token after online and restting timer")
 			await refreshspot(this.settings, this.manifest)
 			clearInterval(sharedstuff.get("spotifyrefreshtimer"))
+			setTimeout( async () => {
 			let spotifyrefreshtimer = setInterval( async () => {
 				await refreshspot(this.settings, this.manifest)
 			}, 3600000)
 			sharedstuff.set("spotifyrefreshtimer", spotifyrefreshtimer)
+		}, TIMEOUT)
 
 		})
 
