@@ -1,11 +1,11 @@
 {
 	"id": "spotify-api",
-	"name": "Spotify Api",
+	"name": "Spotify API",
 	"minAppVersion": "0.15.0",
-	"description": "Exposes spotify api into obsidian",
+	"description": "Exposes Spotify API",
 	"author": "Darren-project",
 	"authorUrl": "https://github.com/Darren-project",
 	"fundingUrl": "https://www.buymeacoffee.com/mickeydarrenlau",
 	"isDesktopOnly": false,
-	"version": "1.1.3"
+	"version": "1.1.4"
 }
