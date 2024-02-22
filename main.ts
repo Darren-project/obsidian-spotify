@@ -67,6 +67,7 @@ const DEFAULT_SETTINGS: ObsidianSpotifySettings = {
 export default class ObsidianSpotify extends Plugin {
 	settings: ObsidianSpotifySettings;
 	manifest: PluginManifest;
+	refreshtoken: any;
 
 	async onload() {
 		await this.loadSettings();
@@ -104,6 +105,10 @@ export default class ObsidianSpotify extends Plugin {
 		})
 
 		window.addEventListener("offline", sharedstuff.get("offlinerefresh"));
+        
+		this.refreshtoken = async () => {
+			await refreshspot(this.settings, this.manifest)
+		}
 		
 		sharedstuff.set("onlinerefresh", async () => {
 			console.log("[" + this.manifest.name + "] Refreshing Spotify Token after online and restting timer")
