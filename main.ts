@@ -70,6 +70,8 @@ export default class ObsidianSpotify extends Plugin {
 	refreshtoken: any;
 
 	async onload() {
+   // This adds a settings tab so the user can configure various aspects of the plugin
+		this.addSettingTab(new ObsidianSpotifySettingsTab(this.app, this));	
 		await this.loadSettings();
 		sharedstuff.set("manifest", this.manifest)
         if(this.settings.spotify_access_token){
@@ -216,8 +218,7 @@ export default class ObsidianSpotify extends Plugin {
 
 		
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new ObsidianSpotifySettingsTab(this.app, this));	
+		
 	}
 
 	onunload() {
