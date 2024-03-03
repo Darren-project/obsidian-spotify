@@ -160,6 +160,13 @@ export default class ObsidianSpotify extends Plugin {
 		
 		function spotify_auth_logout(manifest: PluginManifest){
 			window.spotifysdk.logOut()
+    this.settings.spotify_access_token = {
+		access_token: "",
+		token_type: "",
+		expires_in: 0,
+		refresh_token: ""
+
+	}
 			console.log("[" + manifest.name + "] Logged out")
 		}
 
