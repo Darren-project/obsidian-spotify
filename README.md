@@ -20,10 +20,12 @@ Configuration
 Before you can use the Spotify Plugin, you need to configure it with your Spotify API credentials. Here's how:
 
 1. Go to the Spotify Developer Dashboard and create a new application.
-2. Copy the "Client ID" and "Client Secret" values from your Spotify application.
-3. Open the Obsidian settings and navigate to the "Spotify" tab.
-4. Paste the "Client ID" and "Client Secret" values into the respective fields.
-5. Next follow the Authorization steps
+2. Go to "Basic Information" for your new app
+3. Under "Redirect URIs", add `obsidian://spotify/auth`
+4. Copy the "Client ID" and "Client Secret" values from your Spotify application.
+5. Open the Obsidian settings and navigate to the "Spotify" tab.
+6. Paste the "Client ID" and "Client Secret" values into the respective fields.
+7. Next follow the Authorization steps
 
 Authentication
 
