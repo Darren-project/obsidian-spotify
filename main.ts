@@ -1,5 +1,6 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginManifest, PluginSettingTab, Setting, requestUrl } from 'obsidian';
 import { SpotifyApi, AccessToken } from '@spotify/web-api-ts-sdk';
+import { RefreshClass } from './RefreshClass';
 
 
 declare global {
@@ -10,7 +11,7 @@ declare global {
 
 }
 
-class SharedStuff {
+export class SharedStuff {
     constructor(private stuff: {[key: string]: any;}) {
         this.stuff = {}
     }
@@ -46,7 +47,7 @@ class SharedStuff {
 
 const sharedstuff = new SharedStuff({})
 
-interface ObsidianSpotifySettings {
+export interface ObsidianSpotifySettings {
 	spotify_client_id: string;
 	spotify_client_secret: string;
 	spotify_access_token: AccessToken;
@@ -74,8 +75,7 @@ export default class ObsidianSpotify extends Plugin {
 		this.addSettingTab(new ObsidianSpotifySettingsTab(this.app, this));	
 		await this.loadSettings();
 		sharedstuff.set("manifest", this.manifest)
-        if(this.settings.spotify_access_token){
-		   async function refreshspot(setting: ObsidianSpotifySettings, manifest: PluginManifest) {
+		async function refreshspot(setting: ObsidianSpotifySettings, manifest: PluginManifest) {
 			let json_spotify = setting.spotify_access_token
 			let refresh_token = json_spotify.refresh_token
 			let body = new URLSearchParams(
@@ -99,47 +99,22 @@ export default class ObsidianSpotify extends Plugin {
 			
 			console.log("[" + manifest.name + "] Spotify Token Refreshed")
 			window.spotifysdk = SpotifyApi.withAccessToken(setting.spotify_client_id, data);
+			window.spotifysdk['authenticationStrategy'].refreshTokenAction = async () => { return; }
 		}
-		var TIMEOUT = 3000;
 
-		sharedstuff.set("offlinerefresh", async () => {
-			console.log("[" + this.manifest.name + "] Now offline, refreshing Spotify Token after online and restting timer")
-		})
+		sharedstuff.set("refreshspot", refreshspot)
 
-		window.addEventListener("offline", sharedstuff.get("offlinerefresh"));
-        
-		this.refreshtoken = async () => {
-			await refreshspot(this.settings, this.manifest)
-		}
+        if(this.settings.spotify_access_token.refresh_token){
 		
-		sharedstuff.set("onlinerefresh", async () => {
-			console.log("[" + this.manifest.name + "] Refreshing Spotify Token after online and restting timer")
-			await refreshspot(this.settings, this.manifest)
-			clearInterval(sharedstuff.get("spotifyrefreshtimer"))
-			setTimeout( async () => {
-			let spotifyrefreshtimer = setInterval( async () => {
-				await refreshspot(this.settings, this.manifest)
-			}, 3600000)
-			sharedstuff.set("spotifyrefreshtimer", spotifyrefreshtimer)
-		}, TIMEOUT)
-		}
-		)
-
-		window.addEventListener("online", sharedstuff.get("onlinerefresh"))
-
-		await refreshspot(this.settings, this.manifest)
-		let spotifyrefreshtimer = setInterval( async () => {
-				await refreshspot(this.settings, this.manifest)
-		}, 3600000)
-		sharedstuff.set("spotifyrefreshtimer", spotifyrefreshtimer)
 		
-			
+			RefreshClass.refreshInit({sharedstuff, refreshspot, settings: this.settings, manifest: this.manifest})
 			
 
 
 		} else {
-			window.spotifysdk = SpotifyApi.withUserAuthorization(this.settings.spotify_client_id, "obsidian://spotify/auth", ['user-follow-modify', 'user-follow-read', 'user-read-playback-position', 'user-top-read', 'user-read-recently-played', 'user-library-modify', 'user-library-read', 'user-read-email', 'user-read-private', 'ugc-image-upload', 'app-remote-control', 'streaming', 'playlist-read-private', 'playlist-read-collaborative', 'playlist-modify-private', 'playlist-modify-public', 'user-read-playback-state', 'user-modify-playback-state', 'user-read-currently-playing', 'user-modify-playback-state', 'user-read-recently-played']);
+			(window.spotifysdk as any) = null
 		}
+
 		function spotify_auth_login(spotify_client_id: string, manifest: PluginManifest) {
 					let state = Math.random().toString(36).substring(2,10);
 				    let scope = "user-follow-modify user-follow-read user-read-playback-position user-top-read user-read-recently-played user-library-modify user-library-read user-read-email user-read-private ugc-image-upload app-remote-control streaming playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-read-playback-state user-modify-playback-state user-read-currently-playing user-modify-playback-state user-read-recently-played"
@@ -158,15 +133,18 @@ export default class ObsidianSpotify extends Plugin {
 					console.log("[" + manifest.name + "] Opening login page")
 		}
 		
-		function spotify_auth_logout(manifest: PluginManifest){
+		async function spotify_auth_logout(manifest: PluginManifest, this2: ObsidianSpotify) {
 			window.spotifysdk.logOut()
-    this.settings.spotify_access_token = {
-		access_token: "",
-		token_type: "",
-		expires_in: 0,
-		refresh_token: ""
+			console.log(this2)
+    		this2.settings.spotify_access_token = {
+				access_token: "",
+				token_type: "",
+				expires_in: 0,
+				refresh_token: ""
 
-	}
+			}
+			await this2.saveSettings();
+			RefreshClass.logoutOrunload({sharedstuff, settings: this2.settings, manifest: manifest})
 			console.log("[" + manifest.name + "] Logged out")
 		}
 
@@ -183,8 +161,9 @@ export default class ObsidianSpotify extends Plugin {
 		this.addCommand({
 			id: "spotify-auth-logout",
 			name: "Logout",
-			callback: () => {
-				sharedstuff.get("spotify_auth_logout_function")(this.manifest)
+			callback: async () => {
+				let this2 = this
+				await sharedstuff.get("spotify_auth_logout_function")(this.manifest, this2)
 			}
 		})
 
@@ -220,7 +199,9 @@ export default class ObsidianSpotify extends Plugin {
 			this.settings.spotify_access_token = data
 			await this.saveSettings();
 			window.spotifysdk = SpotifyApi.withAccessToken(this.settings.spotify_client_id, this.settings.spotify_access_token);
+			window.spotifysdk['authenticationStrategy'].refreshTokenAction = async () => { return; }
 			console.log("[" + this.manifest.name + "] Authed successfuly")
+			RefreshClass.refreshInit({sharedstuff, refreshspot, settings: this.settings, manifest: this.manifest})
 		})
 
 		
@@ -229,16 +210,7 @@ export default class ObsidianSpotify extends Plugin {
 	}
 
 	onunload() {
-		function destroyObject(obj: any){
-
-			obj = undefined;
-		  
-		}
-		destroyObject(window.spotifysdk)
-		clearInterval(sharedstuff.get("spotifyrefreshtimer"))
-		window.removeEventListener("offline", sharedstuff.get("offlinerefresh"))
-		window.removeEventListener("online", sharedstuff.get("onlinerefresh"))
-		console.log("[" + this.manifest.name + "] Both the spotify sdk and auto token refresher have been cleaned up")
+		RefreshClass.logoutOrunload({sharedstuff, settings: this.settings, manifest: this.manifest})
 
 	}
 
@@ -302,7 +274,7 @@ class ObsidianSpotifySettingsTab extends PluginSettingTab {
 				.setCta()	
 				.onClick(async () => {
 					
-					sharedstuff.get("spotify_auth_logout_function")(manifest)
+					sharedstuff.get("spotify_auth_logout_function")(manifest, this.plugin)
 
 				}))
 	}
