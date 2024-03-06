@@ -116,7 +116,13 @@ export default class ObsidianSpotify extends Plugin {
 		}
 
 		function spotify_auth_login(spotify_client_id: string, manifest: PluginManifest) {
-					let state = Math.random().toString(36).substring(2,10);
+					const generateRandomString = (length) => {
+						const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+						const values = crypto.getRandomValues(new Uint8Array(length));
+						return values.reduce((acc, x) => acc + possible[x % possible.length], "");
+					}
+			  
+			  		let state  = generateRandomString(64);
 				    let scope = "user-follow-modify user-follow-read user-read-playback-position user-top-read user-read-recently-played user-library-modify user-library-read user-read-email user-read-private ugc-image-upload app-remote-control streaming playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-read-playback-state user-modify-playback-state user-read-currently-playing user-modify-playback-state user-read-recently-played"
 					let params =  {
 						response_type: 'code',
