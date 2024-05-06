@@ -55,6 +55,6 @@ To use the Spotify Plugin in your Obsidian notes, you can use the provided JavaS
 
 ```js
 // Search for tracks
-const searchResults = await window.spotifysdk.search("track", "Believer");
+const searchResults = await window.spotifysdk.search("Believer", "track");
 console.log(searchResults);
 ```
