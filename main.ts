@@ -1,8 +1,7 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginManifest, PluginSettingTab, Setting, requestUrl } from 'obsidian';
 import { SpotifyApi, AccessToken } from '@spotify/web-api-ts-sdk';
 import { RefreshClass } from './RefreshClass';
-
-import { Buffer } from 'buffer/';
+import { Buffer } from './node_modules/buffer/';
 
 
 /**
