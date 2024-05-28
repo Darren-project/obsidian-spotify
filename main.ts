@@ -2,7 +2,7 @@ import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginManifest, Plugi
 import { SpotifyApi, AccessToken } from '@spotify/web-api-ts-sdk';
 import { RefreshClass } from './RefreshClass';
 
-var Buffer = require('buffer/').Buffer
+import { Buffer } from 'buffer/';
 
 
 /**
