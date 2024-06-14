@@ -157,6 +157,7 @@ export default class ObsidianSpotify extends Plugin {
 				refresh_token: refresh_token,
 				client_id: setting.spotify_client_id
 			}).toString();
+			try {
 			let access_token = await requestUrl({
 				"url": 'https://accounts.spotify.com/api/token',
 				"method": "POST",
@@ -167,6 +168,9 @@ export default class ObsidianSpotify extends Plugin {
 				"body": body,
 				"throw": false
 			});
+			} catch {
+				console.log("[" + manifest.name + "] Waiting for internet to update token")
+			}
 			let data = await access_token.json;
 
 			console.log("[" + manifest.name + "] Spotify Token Refreshed");
