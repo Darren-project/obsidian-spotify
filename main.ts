@@ -168,15 +168,15 @@ export default class ObsidianSpotify extends Plugin {
 				"body": body,
 				"throw": false
 			});
-			} catch {
-				console.log("[" + manifest.name + "] Waiting for internet to update token")
-				return;
-			}
 			let data = await access_token.json;
 
 			console.log("[" + manifest.name + "] Spotify Token Refreshed");
 			window.spotifysdk = SpotifyApi.withAccessToken(setting.spotify_client_id, data);
 			window.spotifysdk['authenticationStrategy'].refreshTokenAction = async () => { return; };
+					} catch {
+				console.log("[" + manifest.name + "] Waiting for internet to update token")
+				
+			}
 		}
 
 		sharedstuff.set("refreshspot", refreshspot);
