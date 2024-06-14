@@ -170,6 +170,7 @@ export default class ObsidianSpotify extends Plugin {
 			});
 			} catch {
 				console.log("[" + manifest.name + "] Waiting for internet to update token")
+				return;
 			}
 			let data = await access_token.json;
 
