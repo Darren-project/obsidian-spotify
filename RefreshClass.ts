@@ -45,11 +45,12 @@ export class RefreshClass {
 
 		window.addEventListener("online", sharedstuff.get("onlinerefresh"));
 
-		await refreshspot(settings, manifest);
+		
 		let spotifyrefreshtimer = setInterval(async () => {
 			await refreshspot(settings, manifest);
 		}, 3600000);
 		sharedstuff.set("spotifyrefreshtimer", spotifyrefreshtimer);
+		await refreshspot(settings, manifest);
 	}
 
 	/**
