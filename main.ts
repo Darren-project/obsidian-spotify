@@ -152,7 +152,7 @@ export default class ObsidianSpotify extends Plugin {
                return false;
             }
            };
-		   if(checkConnection()) {
+		   if(await checkConnection()) {
 			   let event = new CustomEvent("online");
                document.dispatchEvent(event)
 		   } else {
