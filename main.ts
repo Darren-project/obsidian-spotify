@@ -140,7 +140,7 @@ export default class ObsidianSpotify extends Plugin {
 	 */
 	async onload() {
         if(Platform.isMobileApp) {
-          setInterval(async () => {
+		  sharedstuff.set("fakenetevents", async () => {
 		   const checkConnection = async () => {
            try {
             const response = await requestUrl({
@@ -159,7 +159,8 @@ export default class ObsidianSpotify extends Plugin {
 			   let event = new CustomEvent("offline");
                document.dispatchEvent(event)
 		   }
-		  },2000)
+		  })
+          setInterval(sharedstuff.get("fakenetevents"),2000)
 		}
 		
 		// This adds a settings tab so the user can configure various aspects of the plugin
