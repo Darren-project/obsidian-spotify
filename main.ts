@@ -139,6 +139,29 @@ export default class ObsidianSpotify extends Plugin {
 	 * Called when the plugin is loaded.
 	 */
 	async onload() {
+        if(this.app.isMobile) {
+          setInterval(() => {
+		   const checkConnection = async () => {
+           try {
+            const response = await requestUrl({
+                 'url': 'https://accounts.spotify.com'
+            });
+
+               return response.status >= 200 && response.status < 300;
+            } catch (error) {
+               return false;
+            }
+           };
+		   if(checkConnection()) {
+			   let event = new CustomEvent("online");
+               document.dispatchEvent(event)
+		   } else {
+			   let event = new CustomEvent("offline");
+               document.dispatchEvent(event)
+		   }
+		  },2000)
+		}
+		
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new ObsidianSpotifySettingsTab(this.app, this));
 		await this.loadSettings();
