@@ -152,16 +152,21 @@ export default class ObsidianSpotify extends Plugin {
                return false;
             }
            };
-		   if(await checkConnection()) {
-			   let event = new CustomEvent("online");
-               document.dispatchEvent(event)
+		   let online = await checkConnection()
+		   if(online == sharedstuff.get("netstatus")) {
+			   return
+		   }
+		   sharedstuff.set("netstatus", online)
+		   if(online) {
+			   let event = new CustomEvent("online")
+               window.dispatchEvent(event)
 		   } else {
-			   let event = new CustomEvent("offline");
-               document.dispatchEvent(event)
+			   let event = new CustomEvent("offline")
+               window.dispatchEvent(event)
 		   }
 		  })
           let fakeneteventstimer = setInterval(sharedstuff.get("fakenetevents"),2000)
-		  sharedstuff.set("fakeneteventstimer")
+		  sharedstuff.set("fakeneteventstimer", fakeneteventstimer)
 		}
 		
 		// This adds a settings tab so the user can configure various aspects of the plugin
