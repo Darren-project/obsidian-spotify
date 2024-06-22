@@ -139,7 +139,7 @@ export default class ObsidianSpotify extends Plugin {
 	 * Called when the plugin is loaded.
 	 */
 	async onload() {
-        if((this.app.isMobile as null)) {
+        if(this.app.Platform.isMobile) {
           setInterval(() => {
 		   const checkConnection = async () => {
            try {
