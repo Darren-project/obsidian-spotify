@@ -160,7 +160,8 @@ export default class ObsidianSpotify extends Plugin {
                document.dispatchEvent(event)
 		   }
 		  })
-          setInterval(sharedstuff.get("fakenetevents"),2000)
+          let fakeneteventstimer = setInterval(sharedstuff.get("fakenetevents"),2000)
+		  sharedstuff.set("fakeneteventstimer")
 		}
 		
 		// This adds a settings tab so the user can configure various aspects of the plugin
@@ -318,6 +319,9 @@ export default class ObsidianSpotify extends Plugin {
 	 */
 	onunload() {
 		RefreshClass.logoutOrunload({ sharedstuff, settings: this.settings, manifest: this.manifest });
+		if(sharedstuff.get("fakeneteventstimer")) {
+			clearInterval(sharedstuff.get("fakeneteventstimer"));
+		}
 	}
 
 	/**
