@@ -339,6 +339,7 @@ export default class ObsidianSpotify extends Plugin {
 				"body": body,
 				"throw": false
 			});
+			
 			let data = await access_token.json;
 			this.settings.spotify_access_token = data;
 			await this.saveSettings();
