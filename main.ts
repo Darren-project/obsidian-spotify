@@ -3,7 +3,6 @@ import { SpotifyApi, AccessToken } from '@spotify/web-api-ts-sdk';
 import { RefreshClass } from './RefreshClass';
 import { Buffer } from './node_modules/buffer/';
 
-
 /**
  * Declares the global interface for the `window` object.
  */
