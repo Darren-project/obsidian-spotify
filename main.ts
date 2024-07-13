@@ -141,8 +141,6 @@ export default class ObsidianSpotify extends Plugin {
 	 * Called when the plugin is loaded.
 	 */
 	async onload() {
-<<<<<<< HEAD
-=======
         if(Platform.isMobileApp) {
 		  sharedstuff.set("fakenetevents", async () => {
 		   const checkConnection = async () => {
@@ -172,7 +170,6 @@ export default class ObsidianSpotify extends Plugin {
           let fakeneteventstimer = setInterval(sharedstuff.get("fakenetevents"),2000)
 		  sharedstuff.set("fakeneteventstimer", fakeneteventstimer)
 		}
->>>>>>> fbf72d772c1b645fa12471cad5ad36ff30da9d6e
 		
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new ObsidianSpotifySettingsTab(this.app, this));
@@ -357,13 +354,9 @@ export default class ObsidianSpotify extends Plugin {
 	 */
 	onunload() {
 		RefreshClass.logoutOrunload({ sharedstuff, settings: this.settings, manifest: this.manifest });
-<<<<<<< HEAD
-		window.removeEventListener("netcheck_spotify", sharedstuff.get("netcheck_spotify"));
-=======
 		if(sharedstuff.get("fakeneteventstimer")) {
 			clearInterval(sharedstuff.get("fakeneteventstimer"));
 		}
->>>>>>> fbf72d772c1b645fa12471cad5ad36ff30da9d6e
 	}
 
 	/**
