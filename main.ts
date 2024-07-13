@@ -10,6 +10,8 @@ import { Buffer } from './node_modules/buffer/';
 declare global {
     interface Window {
         spotifysdk:SpotifyApi;
+		network:boolean;
+		netcheck_spotify:any;
     }
 
 
@@ -139,28 +141,6 @@ export default class ObsidianSpotify extends Plugin {
 	 * Called when the plugin is loaded.
 	 */
 	async onload() {
-        if(Platform.isMobileApp) {
-          setInterval(async () => {
-		   const checkConnection = async () => {
-           try {
-            const response = await requestUrl({
-                 'url': 'https://accounts.spotify.com'
-            });
-
-               return response.status >= 200 && response.status < 300;
-            } catch (error) {
-               return false;
-            }
-           };
-		   if(await checkConnection()) {
-			   let event = new CustomEvent("online");
-               document.dispatchEvent(event)
-		   } else {
-			   let event = new CustomEvent("offline");
-               document.dispatchEvent(event)
-		   }
-		  },2000)
-		}
 		
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new ObsidianSpotifySettingsTab(this.app, this));
@@ -203,6 +183,34 @@ export default class ObsidianSpotify extends Plugin {
 		}
 
 		sharedstuff.set("refreshspot", refreshspot);
+
+		if(Platform.isMobileApp) {
+			console.log("[" + this.manifest.name + "] Mobile app detected, using fake events");
+			window.network = false
+			window.netcheck_spotify = setInterval(async () => {
+			 const checkConnection = async () => {
+			 try {
+			  const response = await requestUrl({
+				   'url': 'https://accounts.spotify.com'
+			  });
+  
+				 return response.status >= 200 && response.status < 300;
+			  } catch (error) {
+				 return false;
+			  }
+			 };
+			 if(await checkConnection() == window.network) {
+				 return;
+			 }
+			 if(await checkConnection()) {
+				 let event = new CustomEvent("online-custom");
+				 document.dispatchEvent(event)
+			 } else {
+				 let event = new CustomEvent("offline-custom");
+				 document.dispatchEvent(event)
+			 }
+			},1000)
+		  }
 
 		if (this.settings.spotify_access_token.refresh_token) {
 			RefreshClass.refreshInit({ sharedstuff, refreshspot, settings: this.settings, manifest: this.manifest });
@@ -317,6 +325,7 @@ export default class ObsidianSpotify extends Plugin {
 	 */
 	onunload() {
 		RefreshClass.logoutOrunload({ sharedstuff, settings: this.settings, manifest: this.manifest });
+		window.removeEventListener("netcheck_spotify", sharedstuff.get("netcheck_spotify"));
 	}
 
 	/**
