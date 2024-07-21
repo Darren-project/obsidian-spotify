@@ -1,7 +1,6 @@
 import { Platform, App, Editor, MarkdownView, Modal, Notice, Plugin, PluginManifest, PluginSettingTab, Setting, requestUrl } from 'obsidian';
 import { SpotifyApi, AccessToken } from '@spotify/web-api-ts-sdk';
 import { RefreshClass } from './RefreshClass';
-import { Buffer } from './node_modules/buffer/';
 
 /**
  * Declares the global interface for the `window` object.
@@ -333,7 +332,7 @@ export default class ObsidianSpotify extends Plugin {
 				"method": "POST",
 				"headers": {
 					'content-type': 'application/x-www-form-urlencoded',
-					'Authorization': 'Basic ' + (Buffer.from(this.settings.spotify_client_id + ':' + this.settings.spotify_client_secret).toString('base64'))
+					'Authorization': 'Basic ' + (btoa(this.settings.spotify_client_id + ':' + this.settings.spotify_client_secret))
 				},
 				"body": body,
 				"throw": false
