@@ -1,4 +1,4 @@
-import { Platform, App, Editor, MarkdownView, Modal, Notice, Plugin, PluginManifest, PluginSettingTab, Setting, requestUrl } from 'obsidian';
+import { Platform, App, Editor, MarkdownView, Modal, Notice, Plugin, PluginManifest, PluginSettingTab, Setting, requestUrl, SettingTab } from 'obsidian';
 import { SpotifyApi, AccessToken } from '@spotify/web-api-ts-sdk';
 import { RefreshClass } from './RefreshClass';
 
@@ -280,6 +280,7 @@ export default class ObsidianSpotify extends Plugin {
 		 * @param this2 - The ObsidianSpotify object.
 		 */
 		async function spotify_auth_logout(manifest: PluginManifest, this2: ObsidianSpotify) {
+			try {
 			window.spotifysdk.logOut();
 			console.log(this2);
 			this2.settings.spotify_access_token = {
@@ -291,6 +292,10 @@ export default class ObsidianSpotify extends Plugin {
 			await this2.saveSettings();
 			RefreshClass.logoutOrunload({ sharedstuff, settings: this2.settings, manifest: manifest });
 			console.log("[" + manifest.name + "] Logged out");
+			try {
+				sharedstuff.get("refreshname")(this2)
+			} catch {}
+		} catch {}
 		}
 
 		sharedstuff.set("spotify_auth_login_function", spotify_auth_login);
@@ -311,6 +316,23 @@ export default class ObsidianSpotify extends Plugin {
 				await sharedstuff.get("spotify_auth_logout_function")(this.manifest, this2);
 			}
 		});
+
+		async function refreshname(plugin: ObsidianSpotify) {
+			try {
+				if(plugin.settings.spotify_access_token.access_token) {
+					(async () => {
+						let data = await window.spotifysdk.currentUser.profile()
+						sharedstuff.get("usernametext").setText(data.display_name + " (" + data.id + ")")
+					})()
+				} else {
+					sharedstuff.get("usernametext").setText("Not logged in")
+				}
+			} catch(e) {
+				sharedstuff.get("usernametext").setText("Error getting username")
+			}
+		}
+
+		sharedstuff.set("refreshname", refreshname);
 
 		this.registerObsidianProtocolHandler("spotify/auth", async (e) => {
 			console.log("[" + this.manifest.name + "] Spotify Auth Code Received From Callback");
@@ -344,6 +366,9 @@ export default class ObsidianSpotify extends Plugin {
 			window.spotifysdk['authenticationStrategy'].refreshTokenAction = async () => { return; };
 			console.log("[" + this.manifest.name + "] Authed successfuly");
 			RefreshClass.refreshInit({ sharedstuff, refreshspot, settings: this.settings, manifest: this.manifest });
+			try {
+				sharedstuff.get("refreshname")(this)
+			} catch {}
 		});
 	}
 
@@ -376,6 +401,7 @@ export default class ObsidianSpotify extends Plugin {
 
 class ObsidianSpotifySettingsTab extends PluginSettingTab {
 	plugin: ObsidianSpotify;
+	static display: any;
 
 	constructor(app: App, plugin: ObsidianSpotify) {
 		super(app, plugin);
@@ -389,7 +415,7 @@ class ObsidianSpotifySettingsTab extends PluginSettingTab {
 		containerEl.empty();
 		new Setting(containerEl)
 			.setName('Spotify Client ID')
-			.setDesc('Find it in your spotify dev')
+			.setDesc('Find it in your spotify developer dashboard')
 			.addText(text => text
 				.setPlaceholder('Enter your client ID')
 				.setValue(this.plugin.settings.spotify_client_id)
@@ -400,7 +426,7 @@ class ObsidianSpotifySettingsTab extends PluginSettingTab {
 
 				new Setting(containerEl)
 				.setName('Spotify Client secret')
-				.setDesc('Find it in your spotify dev')
+				.setDesc('Find it in your spotify developer dashboard')
 				.addText(text => text
 					.setPlaceholder('Enter your client secret')
 					.setValue(this.plugin.settings.spotify_client_secret)
@@ -409,22 +435,36 @@ class ObsidianSpotifySettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					}));
 				new Setting(containerEl)
+				.setName('Spotify Authentification')
+				.setDesc('Login or logout from spotify')
 				.addButton((btn) => btn
-				.setButtonText("Spotify auth")
+				.setButtonText("Login")
 				.setCta()
 				.onClick(async () => {
 					
 					sharedstuff.get("spotify_auth_login_function")(this.plugin.settings.spotify_client_id, manifest)
 
 				}))
-				new Setting(containerEl)
 				.addButton((btn) => btn
-				.setButtonText("Spotify logout")
+				.setButtonText("Logout")
 				.setCta()	
 				.onClick(async () => {
 					
 					sharedstuff.get("spotify_auth_logout_function")(manifest, this.plugin)
 
 				}))
+
+				const usernamecontainer = new Setting(containerEl)
+				.setName('Logged in as')
+				.setDesc('The current logged in user')
+
+				const usernamewrapcontainer = usernamecontainer.controlEl.createDiv("spotify-api-refresh-token");
+				const usernametext = usernamewrapcontainer.createSpan()
+
+				sharedstuff.set("usernametext", usernametext)
+				sharedstuff.get("refreshname")(this.plugin)
+				
+
+				
 	}
 }
