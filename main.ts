@@ -320,11 +320,10 @@ export default class ObsidianSpotify extends Plugin {
 		async function refreshname(plugin: ObsidianSpotify) {
 			try {
 				if(plugin.settings.spotify_access_token.access_token) {
-					(async () => {
+					
 						let data = await window.spotifysdk.currentUser.profile()
 						sharedstuff.get("usernametext").setText(data.display_name + " (" + data.id + ")")
-					})()
-				} else {
+								} else {
 					sharedstuff.get("usernametext").setText("Not logged in")
 				}
 			} catch(e) {
