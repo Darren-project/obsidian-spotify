@@ -73,7 +73,9 @@ export class RefreshClass {
 		(window.spotifysdk as any) = null;
 		clearInterval(sharedstuff.get("spotifyrefreshtimer"));
 		window.removeEventListener("offline", sharedstuff.get("offlinerefresh"));
+		window.removeEventListener("offline-custom", sharedstuff.get("offlinerefresh"));
 		window.removeEventListener("online", sharedstuff.get("onlinerefresh"));
+		window.removeEventListener("online-custom", sharedstuff.get("onlinerefresh"));
 		console.log("[" + manifest.name + "] Both the Spotify SDK and auto token refresher have been cleaned up");
 	}
 }
