@@ -24,7 +24,7 @@ export class SharedStuff {
 	 * @param stuff - The initial data to be stored in the SharedStuff instance.
 	 */
 	constructor(private stuff: {[key: string]: any;}) {
-		this.stuff = {}
+		this.stuff = stuff
 	}
 
 	/**
