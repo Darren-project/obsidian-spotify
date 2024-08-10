@@ -27,6 +27,7 @@ export class RefreshClass {
 
 		sharedstuff.set("offlinerefresh", async () => {
 			console.log("[" + manifest.name + "] Now offline, refreshing Spotify Token after online and resetting timer");
+			sharedstuff.get("refreshname")(this.plugin)
 		});
 
 		window.addEventListener("offline", sharedstuff.get("offlinerefresh"));
@@ -35,6 +36,7 @@ export class RefreshClass {
 		sharedstuff.set("onlinerefresh", async () => {
 			console.log("[" + manifest.name + "] Refreshing Spotify Token after online and resetting timer");
 			await refreshspot(settings, manifest);
+			sharedstuff.get("refreshname")(this.plugin)
 			clearInterval(sharedstuff.get("spotifyrefreshtimer"));
 			setTimeout(async () => {
 				let spotifyrefreshtimer = setInterval(async () => {
