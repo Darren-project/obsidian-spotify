@@ -8,8 +8,6 @@ import { RefreshClass } from './RefreshClass';
 declare global {
     interface Window {
         spotifysdk:SpotifyApi;
-		network:boolean;
-		netcheck_spotify:any;
     }
 
 
