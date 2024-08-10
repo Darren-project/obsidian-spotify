@@ -209,33 +209,7 @@ export default class ObsidianSpotify extends Plugin {
 
 		sharedstuff.set("refreshspot", refreshspot);
 
-		if(Platform.isMobileApp) {
-			console.log("[" + this.manifest.name + "] Mobile app detected, using fake events");
-			window.network = false
-			window.netcheck_spotify = setInterval(async () => {
-			 const checkConnection = async () => {
-			 try {
-			  const response = await requestUrl({
-				   'url': 'https://accounts.spotify.com'
-			  });
-  
-				 return response.status >= 200 && response.status < 300;
-			  } catch (error) {
-				 return false;
-			  }
-			 };
-			 if(await checkConnection() == window.network) {
-				 return;
-			 }
-			 if(await checkConnection()) {
-				 let event = new CustomEvent("online-custom");
-				 document.dispatchEvent(event)
-			 } else {
-				 let event = new CustomEvent("offline-custom");
-				 document.dispatchEvent(event)
-			 }
-			},1000)
-		  }
+		
 
 		if (this.settings.spotify_access_token.refresh_token) {
 			RefreshClass.refreshInit({ sharedstuff, refreshspot, settings: this.settings, manifest: this.manifest });
