@@ -289,9 +289,9 @@ export default class ObsidianSpotify extends Plugin {
 			}
 		});
 
-		async function refreshname(plugin: ObsidianSpotify) {
+		async function refreshname(settings: ObsidianSpotifySettings) {
 			try {
-				if(plugin.settings.spotify_access_token.access_token) {
+				if(settings.spotify_access_token.access_token) {
 					
 						let data = await window.spotifysdk.currentUser.profile()
 						sharedstuff.get("usernametext").setText(data.display_name + " (" + data.id + ")")
@@ -338,7 +338,7 @@ export default class ObsidianSpotify extends Plugin {
 			console.log("[" + this.manifest.name + "] Authed successfuly");
 			RefreshClass.refreshInit({ sharedstuff, refreshspot, settings: this.settings, manifest: this.manifest });
 			try {
-				sharedstuff.get("refreshname")(this)
+				sharedstuff.get("refreshname")(this.settings)
 			} catch {}
 		});
 	}
@@ -433,7 +433,7 @@ class ObsidianSpotifySettingsTab extends PluginSettingTab {
 				const usernametext = usernamewrapcontainer.createSpan()
 
 				sharedstuff.set("usernametext", usernametext)
-				sharedstuff.get("refreshname")(this.plugin)
+				sharedstuff.get("refreshname")(this.plugin.settings)
 				
 
 				
